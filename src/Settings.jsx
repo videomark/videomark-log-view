@@ -2,6 +2,7 @@ import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useHistory, useLocation } from "react-router";
 import { styled } from "@material-ui/styles";
+import { makeStyles } from '@material-ui/core/styles';
 import Container from "@material-ui/core/Container";
 import Box from "@material-ui/core/Box";
 import AppBar from "@material-ui/core/AppBar";
@@ -21,6 +22,9 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import Checkbox from '@material-ui/core/Checkbox';
+import Slider from '@material-ui/core/Slider';
+import TextField from '@material-ui/core/TextField';
 import uuidv4 from "uuid/v4";
 import addYears from "date-fns/addYears";
 import formatDistanceStrict from "date-fns/formatDistanceStrict";
@@ -279,6 +283,281 @@ PrivacySettings.defaultProps = {
   saveSession: undefined
 };
 
+const BitrateControlSettings = ({ settings, saveSettings }) => {
+  const useStyles = makeStyles(theme => ({
+    nested6: {
+      paddingLeft: theme.spacing(6),
+    },
+    nested12: {
+      paddingLeft: theme.spacing(12),
+    },
+  }));
+  const classes = useStyles();
+
+  const resolutionMarks = [
+    {
+      value: 0,
+      label: "144p",
+      resolution: 144,
+    },
+    {
+      value: 1,
+      label: "240p",
+      resolution: 240,
+    },
+    {
+      value: 2,
+      label: "360p",
+      resolution: 360,
+    },
+    {
+      value: 3,
+      label: "480p",
+      resolution: 480,
+    },
+    {
+      value: 4,
+      label: "720p",
+      resolution: 720,
+    },
+    {
+      value: 5,
+      label: "1080p",
+      resolution: 1080,
+    },
+    {
+      value: 6,
+      label: "1440p",
+      resolution: 1440,
+    },
+    {
+      value: 7,
+      label: "2160p",
+      resolution: 2160,
+    },
+  ];
+
+  const bitrateMarks = [
+    {
+      value: 0,
+      label: "128k",
+      bitrate: 128,
+    },
+    {
+      value: 1,
+      label: "256k",
+      bitrate: 256,
+    },
+    {
+      value: 2,
+      label: "512k",
+      bitrate: 512,
+    },
+    {
+      value: 3,
+      label: "1M",
+      bitrate: 1024,
+    },
+    {
+      value: 4,
+      label: "2.5M",
+      bitrate: 2560,
+    },
+    {
+      value: 5,
+      label: "5M",
+      bitrate: 5120,
+    },
+    {
+      value: 6,
+      label: "10M",
+      bitrate: 10240,
+    },
+    {
+      value: 7,
+      label: "20M",
+      bitrate: 20480,
+    },
+  ];
+
+  const [state, setState] = React.useState({
+    resolution_control_enabled: false,
+    bitrate_control_enabled: false,
+    control_by_traffic_volume: false,
+    control_by_os_quota: false,
+    control_by_browser_quota: false,
+  });
+
+  function onResolutionCheckboxChange(event) {
+    setState({ ...state, resolution_control_enabled: event.target.checked });
+    settings = Object.assign(settings, { resolution_control_enabled: event.target.checked });
+    saveSettings(settings);
+  };
+  function onBitrateCheckboxChange(event) {
+    setState({ ...state, bitrate_control_enabled: event.target.checked });
+    settings = Object.assign(settings, { bitrate_control_enabled: event.target.checked });
+    saveSettings(settings);
+  };
+
+  function onResolutionSliderChangeCommitted(event, value) {
+    settings = Object.assign(settings, { resolution_control: resolutionMarks[value].resolution });
+    saveSettings(settings);
+  };
+  function onBitrateSliderChangeCommitted(event, value) {
+    settings = Object.assign(settings, { bitrate_control: bitrateMarks[value].bitrate });
+    saveSettings(settings);
+  };
+
+  function onTrafficVolumeCheckboxChange(event) {
+    setState({ ...state, control_by_traffic_volume: event.target.checked });
+    settings = Object.assign(settings, { control_by_traffic_volume: event.target.checked });
+    saveSettings(settings);
+  };
+  function onOsQuotaCheckboxChange(event) {
+    setState({ ...state, control_by_os_quota: event.target.checked });
+    settings = Object.assign(settings, { control_by_os_quota: event.target.checked });
+    saveSettings(settings);
+  };
+  function onBrowserQuotaCheckboxChange(event) {
+    setState({ ...state, control_by_browser_quota: event.target.checked });
+    settings = Object.assign(settings, { control_by_browser_quota: event.target.checked });
+    saveSettings(settings);
+  };
+
+  function onBrowserQuotaTextFieldChange(event) {
+    settings = Object.assign(settings, { browser_quota: parseInt(event.target.value) });
+    saveSettings(settings);
+  };
+  function onBrowserQuotaBitrateTextFieldChange(event) {
+    settings = Object.assign(settings, { browser_quota_bitrate: parseInt(event.target.value) });
+    saveSettings(settings);
+  };
+
+  let resolutionCheckbox = undefined;
+  let bitrateCheckbox = undefined;
+  let resolutionSlider = undefined;
+  let bitrateSlider = undefined;
+  let trafficVolumeCheckbox = undefined;
+  let osQuotaCheckbox = undefined;
+  let browserQuotaCheckbox = undefined;
+  let browserQuotaTextField = undefined;
+  let browserQuotaBitrateTextField = undefined;
+  if (settings !== undefined) {
+    const resolutionIndex = settings.resolution_control ? resolutionMarks.filter(mark => mark.resolution <= settings.resolution_control).length-1 : resolutionMarks.length-1;
+    const bitrateIndex = settings.bitrate_control ? bitrateMarks.filter(mark => mark.bitrate <= settings.bitrate_control).length-1 : bitrateMarks.length-1;
+
+    resolutionCheckbox = (
+      <Checkbox checked={settings.resolution_control_enabled} value="resolution_control_enabled" onChange={onResolutionCheckboxChange} />
+    );
+    bitrateCheckbox = (
+      <Checkbox checked={settings.bitrate_control_enabled} value="bitrate_control_enabled" onChange={onBitrateCheckboxChange} />
+    );
+
+    resolutionSlider = (
+      <Slider
+        disabled={!settings.resolution_control_enabled}
+        defaultValue={resolutionIndex}
+        marks={resolutionMarks}
+        step={null}
+        min={0}
+        max={resolutionMarks.length-1}
+        onChangeCommitted={onResolutionSliderChangeCommitted}
+      />
+    );
+    bitrateSlider = (
+      <Slider
+        disabled={!settings.bitrate_control_enabled}
+        defaultValue={bitrateIndex}
+        marks={bitrateMarks}
+        step={null}
+        min={0}
+        max={bitrateMarks.length-1}
+        onChangeCommitted={onBitrateSliderChangeCommitted}
+      />
+    );
+
+    trafficVolumeCheckbox = (
+      <Checkbox checked={settings.control_by_traffic_volume} value="control_by_traffic_volume" onChange={onTrafficVolumeCheckboxChange} />
+    );
+    osQuotaCheckbox = (
+      <Checkbox checked={settings.control_by_os_quota} value="control_by_os_quota" onChange={onOsQuotaCheckboxChange} disabled={!settings.control_by_traffic_volume} />
+    );
+    browserQuotaCheckbox = (
+      <Checkbox checked={settings.control_by_browser_quota} value="control_by_browser_quota" onChange={onBrowserQuotaCheckboxChange} disabled={!settings.control_by_traffic_volume} />
+    );
+
+    browserQuotaTextField = (
+      <TextField type="number" inputProps={{min:1, style:{textAlign:"right"}}} defaultValue={settings.browser_quota} disabled={!settings.control_by_traffic_volume || !settings.control_by_browser_quota} onChange={onBrowserQuotaTextFieldChange} />
+    );
+    browserQuotaBitrateTextField = (
+      <TextField type="number" inputProps={{min:1, style:{textAlign:"right"}}} defaultValue={settings.browser_quota_bitrate} disabled={!settings.control_by_traffic_volume} onChange={onBrowserQuotaBitrateTextFieldChange} />
+    );
+  }
+
+  return (
+    <Box marginY={4}>
+      <Box marginY={1}>
+        <Typography component="h3" variant="body1">
+          ビットレート制御
+        </Typography>
+      </Box>
+      <Paper>
+        <List>
+          <ListItem>
+            {resolutionCheckbox}
+            <ListItemText primary="動画の解像度制御を行う" />
+          </ListItem>
+          <ListItem>
+            {resolutionSlider}
+          </ListItem>
+          <Divider component="li" />
+          <ListItem>
+            {bitrateCheckbox}
+            <ListItemText primary="動画のビットレート制御を行う" />
+          </ListItem>
+          <ListItem>
+            {bitrateSlider}
+          </ListItem>
+          <Divider component="li" />
+          <ListItem>
+            {trafficVolumeCheckbox}
+            <ListItemText primary="通信量に応じて動画のビットレート制御を行う" />
+          </ListItem>
+          <ListItem className={classes.nested6}>
+            {osQuotaCheckbox}
+            <ListItemText primary="OS 全体の通信量が OS 設定の警告値を超えたら制限する" />
+          </ListItem>
+          <ListItem className={classes.nested6}>
+            {browserQuotaCheckbox}
+            <ListItemText primary="VM Browser の動画通信量が指定の値を超えたら制限する" />
+          </ListItem>
+          <ListItem className={classes.nested12}>
+            月間
+            {browserQuotaTextField}
+            MB
+          </ListItem>
+          <ListItem className={classes.nested6}>
+            <ListItemText primary="VM Browser の動画通信量が指定の値を超えたら制限する" />
+          </ListItem>
+          <ListItem className={classes.nested6}>
+            上限
+            {browserQuotaBitrateTextField}
+            kbps
+          </ListItem>
+        </List>
+      </Paper>
+    </Box>
+  );
+};
+BitrateControlSettings.propTypes = {
+  settings: PropTypes.shape({}),
+  saveSettings: PropTypes.instanceOf(Function)
+};
+BitrateControlSettings.defaultProps = {
+  settings: undefined,
+  saveSettings: undefined
+};
+
 const Reset = ({ settings, resetSettings }) => {
   const [dialog, openDialog] = useDialog();
   const openResetSettingsDialog = useCallback(
@@ -340,7 +619,7 @@ const useOverwriteSessionId = ({
   // NOTE: オーバーフロー無く十分に長い適当な期間
   const expiresIn = addYears(0, 10).getTime();
 
-  saveSettings({ expires_in: expiresIn });
+  saveSettings(Object.assign(settings, { expires_in: expiresIn }));
   saveSession({ id: sessionId, expires: Date.now() + expiresIn });
 };
 
@@ -372,6 +651,7 @@ export default () => {
             session={session}
             saveSession={saveSession}
           />
+          <BitrateControlSettings settings={settings} saveSettings={saveSettings} />
           <Reset settings={settings} resetSettings={resetSettings} />
         </Container>
       </Box>
