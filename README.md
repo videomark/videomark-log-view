@@ -1,5 +1,4 @@
-![build](https://github.com/videomark/videomark-log-view/workflows/build/badge.svg?branch=master)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/381b781f-df6b-451a-829e-d15634b9b72f/deploy-status)](https://app.netlify.com/sites/videomark-log-view/deploys)
+**NOTICE**: このリポジトリは、2020年5月27日に [videomark/videomark](https://github.com/videomark/videomark) に移行したためアーカイブされました。引き続き [videomark/videomark](https://github.com/videomark/videomark) にて開発は続けられます。
 
 # 開発環境
 
